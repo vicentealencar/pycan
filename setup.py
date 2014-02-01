@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 __version__ = '0.1.0'
 
 setup(
-    name='pyfunct',
+    name='pycan',
     version=__version__,
     url='https://github.com/jusbrasil/pycan',
     author=u'Vicente Carlos de Alencar Jr',
