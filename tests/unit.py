@@ -59,15 +59,6 @@ class CanTest(unittest.TestCase):
   	pycan.can('action', target, auth)
   	self.assertRaises(pycan.exceptions.TargetAlreadyHasActionsError, pycan.can, '*', target, auth)
 
-  def can_asterisk_exceptions_test(self):
-  	target = 'target'
-  	actions = ['actionA','*']
-  	auth = lambda u, r, c: True
-  	self.assertRaises(pycan.exceptions.ActionListWithAsteriskError, pycan.can, actions, target, auth)
-
-  	pycan.can('action', target, auth)
-  	self.assertRaises(pycan.exceptions.TargetAlreadyHasActionsError, pycan.can, '*', target, auth)
-
   	target = 'targetTwo'
   	pycan.can('*', target, auth)
   	self.assertRaises(pycan.exceptions.TargetAlreadyHasAsteriskError, pycan.can, 'action', target, auth)
