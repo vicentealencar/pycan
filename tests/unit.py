@@ -1,12 +1,16 @@
 import unittest
 import pycan
 
-class CanTest(unittest.TestCase):
+class PyCanTestCase(unittest.TestCase):
     def setUp(self):
         pycan._permissions = {}
 
     def get_basic_permission_params(self):
         return 'action', 'target', lambda u, r, c: True
+
+    def get_full_permission_params(self):
+        action, target, auth = self.get_basic_permission_params()
+        return action, target, auth, lambda _,__: True, lambda _,__: True
 
     def assert_action_was_stored(self, action, target, auth):
         self.assertIn(target, pycan._permissions)
@@ -17,6 +21,8 @@ class CanTest(unittest.TestCase):
         for action in action_set:
             self.assert_action_was_stored(action, target, auth)
 
+
+class CanTest(PyCanTestCase):
     def can_repeated_single_action_test(self):
         action, target, auth = self.get_basic_permission_params()
         pycan.can(action, target, auth)
@@ -78,34 +84,44 @@ class CanTest(unittest.TestCase):
     def can_get_resource_test(self):
         pass
 
-    def can_exception_test(self):
+class CanITest(PyCanTestCase):    
+    def can_i_false_result(self):    
+        pass       
+
+    def can_i_true_result(self):
         pass
+  
 
-
-class CanITest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-
-class AuthorizeTest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def get_basic_authorization(self):
-        pass
+class AuthorizeTest(PyCanTestCase):
+    def get_basic_context(self):
+        return {
+            'location':'middle earth',
+            'era': 3
+        }
 
     def authorize_sucess_test(self):
-
-        pass
+        action, target, _, get_auth_resource, get_resource = self.get_full_permission_params()
+        auth = lambda user, context, resource: user == 'gandalf' and context['location'] == 'middle earth'
+        pycan.can(action, target, auth, get_auth_resource, get_resource)
+        auth_resource, resource = pycan.authorize(action, target, 'gandalf', self.get_basic_context())
+        self.assertTrue(auth_resource)
+        self.assertTrue(resource)
     
     def authorize_fail_test(self):
-        pass
+        action, target, _, get_auth_resource, get_resource = self.get_full_permission_params()
+        auth = lambda user, context, resource: user == 'gandalf' and context['location'] == 'middle earth'
+        pycan.can(action, target, auth, get_auth_resource, get_resource)
+        self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, action, target, 'elrond', self.get_basic_context())        
 
     def authorize_with_missing_target_test(self):
-        pass
+        action, target, auth = self.get_basic_permission_params()
+        pycan.can(action, target, auth)
+        self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, action, 'no_target', 'gandalf', self.get_basic_context())
 
     def authorize_with_missing_action_test(self):
-        pass
+        action, target, auth = self.get_basic_permission_params()
+        pycan.can(action, target, auth)
+        self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, 'no_action', target, 'gandalf', self.get_basic_context())
 
 
 class ExtrasTest(unittest.TestCase):

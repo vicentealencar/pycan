@@ -50,7 +50,7 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
 def can_i(action, target, user, context=None):
     assert action, "An action must be specified"
     assert target, "A target must be specified"
-    assert user, "A user must be specified"
+    assert user, "An user must be specified"
 
     result = False
     auth_resource = None
@@ -78,7 +78,7 @@ def authorize(action, target, user, context=None):
     if go_ahead:
         return auth_resource, resource
     else:
-        raise ((_permissions.get(target) or {}).get(action) or {}).get("exception") or UnauthorizedResourceError(action, target, user, context, resource)
+        raise ((_permissions.get(target) or {}).get(action) or {}).get("exception") or exceptions.UnauthorizedResourceError(action, target, user, context, resource)
 
 def _is_sequence(arg):
     return (not hasattr(arg, "strip") and
