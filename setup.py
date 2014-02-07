@@ -12,4 +12,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     tests_require=['mock'],
+    setup_requires=['nose>=1.0']
 )
