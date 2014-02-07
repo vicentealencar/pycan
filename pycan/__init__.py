@@ -4,8 +4,9 @@ import exceptions
 
 _permissions = {}
 
-def can(action_set, target_set, authorization, get_authorization_resource=lambda _,__: None,
-    get_resource=lambda _,__: None, exception=None):
+
+def can(action_set, target_set, authorization, get_authorization_resource=lambda _, __: None,
+        get_resource=lambda _, __: None, exception=None):
     assert action_set, "At least one action must be specified"
     assert target_set, "At least one target must be specified"
     assert authorization, "An authorization procedure must be specified"
@@ -13,7 +14,8 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
     assert getattr(get_resource, '__call__'), "get_resource must be callable"
     assert getattr(authorization, '__call__'), "get_resource must be callable"
 
-    assert len(inspect.getargspec(get_authorization_resource).args) == 2, "get_authorization_resource must accept 2 parameters"
+    assert len(inspect.getargspec(get_authorization_resource).args) == 2, \
+        "get_authorization_resource must accept 2 parameters"
     assert len(inspect.getargspec(get_resource).args) == 2, "get_resource must accept 2 parameters"
     assert len(inspect.getargspec(authorization).args) == 3, "authorization must accept 3 parameters"
 
@@ -34,18 +36,20 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
 
         for action in action_set:
             if action == "*" and len(_permissions[target]) > 0:
-                raise exceptions.TargetAlreadyHasActionsError("Can't register \"*\" cause the target \"%s\" already has action_set" % target)
+                raise exceptions.TargetAlreadyHasActionsError(
+                    "Can't register \"*\" cause the target \"%s\" already has action_set" % target)
 
             if action in _permissions[target]:
-                raise exceptions.ActionAlreadyExistsError("A permission for this target resource has already been specified")
+                raise exceptions.ActionAlreadyExistsError(
+                    "A permission for this target resource has already been specified")
 
             _permissions[target][action] = {
-                    'exception': exception,
-                    'authorization': authorization,
-                    'get_authorization_resource': get_authorization_resource,
-                    'get_resource': get_resource,
-                }
-        
+                'exception': exception,
+                'authorization': authorization,
+                'get_authorization_resource': get_authorization_resource,
+                'get_resource': get_resource,
+            }
+
 
 def can_i(action, target, user, context=None):
     assert action, "An action must be specified"
@@ -72,15 +76,18 @@ def can_i(action, target, user, context=None):
 
     return result, auth_resource, resource
 
+
 def authorize(action, target, user, context=None):
     go_ahead, auth_resource, resource = can_i(action, target, user, context)
 
     if go_ahead:
         return auth_resource, resource
     else:
-        raise ((_permissions.get(target) or {}).get(action) or {}).get("exception") or exceptions.UnauthorizedResourceError(action, target, user, context, resource)
+        raise ((_permissions.get(target) or {}).get(action) or {}).get("exception") or \
+            exceptions.UnauthorizedResourceError(action, target, user, context, resource)
+
 
 def _is_sequence(arg):
     return (not hasattr(arg, "strip") and
-        hasattr(arg, "__getitem__") or
-        hasattr(arg, "__iter__"))
+            hasattr(arg, "__getitem__") or
+            hasattr(arg, "__iter__"))
