@@ -1,37 +1,37 @@
 class UnauthorizedResourceError(Exception):
-  def __init__(self, action, target, user, context, resource):
-    self.action = action
-    self.target = target
-    self.user = user
-    self.context = context
-    self.resource = resource
+    def __init__(self, action, target, user, context, resource):
+        self.action = action
+        self.target = target
+        self.user = user
+        self.context = context
+        self.resource = resource
 
 
 class ActionNotFoundError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
 
 class TargetNotFoundError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
 
 class ActionAlreadyExistsError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
-    
+
 class TargetAlreadyHasAsteriskError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
 
 class TargetAlreadyHasActionsError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
 
 class ActionListWithAsteriskError(Exception):
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
