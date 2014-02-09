@@ -5,10 +5,9 @@ import exceptions
 _permissions = {}
 
 
-def can(action_set, target_set, authorization, get_authorization_resource=lambda _, __: None,
+def can(action_set, context_set=None, authorization, get_authorization_resource=lambda _, __: None,
         get_resource=lambda _, __: None, exception=None):
     assert action_set, "At least one action must be specified"
-    assert target_set, "At least one target must be specified"
     assert authorization, "An authorization procedure must be specified"
     assert getattr(get_authorization_resource, '__call__'), "get_authorization_resource must be callable"
     assert getattr(get_resource, '__call__'), "get_resource must be callable"
@@ -19,31 +18,31 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
     assert len(inspect.getargspec(get_resource).args) == 2, "get_resource must accept 2 parameters"
     assert len(inspect.getargspec(authorization).args) == 3, "authorization must accept 3 parameters"
 
-    if not _is_sequence(target_set):
-        target_set = [target_set]
+    if not _is_sequence(context_set):
+        context_set = [context_set]
 
     if not _is_sequence(action_set):
         action_set = [action_set]
     elif "*" in action_set and len(action_set) > 1:
         raise exceptions.ActionListWithAsteriskError("* must be a solo action")
 
-    for target in target_set:
-        if target not in _permissions:
-            _permissions[target] = {}
+    for context in context_set:
+        if context not in _permissions:
+            _permissions[context] = {}
 
-        if "*" in _permissions[target]:
-            raise exceptions.TargetAlreadyHasAsteriskError("The target \"%s\" already has an \"*\"" % target)
+        if "*" in _permissions[context]:
+            raise exceptions.contextAlreadyHasAsteriskError("The context \"%s\" already has an \"*\"" % context)
 
         for action in action_set:
-            if action == "*" and len(_permissions[target]) > 0:
-                raise exceptions.TargetAlreadyHasActionsError(
-                    "Can't register \"*\" cause the target \"%s\" already has action_set" % target)
+            if action == "*" and len(_permissions[context]) > 0:
+                raise exceptions.contextAlreadyHasActionsError(
+                    "Can't register \"*\" cause the context \"%s\" already has action_set" % context)
 
-            if action in _permissions[target]:
+            if action in _permissions[context]:
                 raise exceptions.ActionAlreadyExistsError(
-                    "A permission for this target resource has already been specified")
+                    "A permission for this context resource has already been specified")
 
-            _permissions[target][action] = {
+            _permissions[context][action] = {
                 'exception': exception,
                 'authorization': authorization,
                 'get_authorization_resource': get_authorization_resource,
@@ -51,10 +50,9 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
             }
 
 
-def can_i(action, target, user, context=None):
+def can_i(action, target, user=None, context=None):
     assert action, "An action must be specified"
     assert target, "A target must be specified"
-    assert user, "An user must be specified"
 
     result = False
     auth_resource = None
