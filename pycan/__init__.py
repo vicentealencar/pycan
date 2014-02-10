@@ -5,7 +5,7 @@ import exceptions
 _permissions = {}
 
 
-def can(action_set, context_set=None, authorization, get_authorization_resource=lambda _, __: None,
+def can(action_set, context_set, authorization, get_authorization_resource=lambda _, __: None,
         get_resource=lambda _, __: None, exception=None):
     assert action_set, "At least one action must be specified"
     assert authorization, "An authorization procedure must be specified"
