@@ -4,7 +4,8 @@ import exceptions
 
 _permissions = {}
 
-allow_to_all = lambda user, context, resource: True
+def allow_to_all(user, app_context, resource):
+     return True
 
 def can(action_set, context_set, authorization, get_authorization_resource=lambda _, __: None,
         get_resource=lambda _, __: None, exception=None):
