@@ -12,7 +12,7 @@ class ActionNotFoundError(Exception):
         self.value = value
 
 
-class TargetNotFoundError(Exception):
+class ContextNotFoundError(Exception):
     def __init__(self, value):
         self.value = value
 
@@ -22,12 +22,12 @@ class ActionAlreadyExistsError(Exception):
         self.value = value
 
 
-class TargetAlreadyHasAsteriskError(Exception):
+class ContextAlreadyHasAsteriskError(Exception):
     def __init__(self, value):
         self.value = value
 
 
-class TargetAlreadyHasActionsError(Exception):
+class ContextAlreadyHasActionsError(Exception):
     def __init__(self, value):
         self.value = value
 

@@ -4,6 +4,7 @@ import exceptions
 
 _permissions = {}
 
+allow_to_all = lambda user, context, resource: True
 
 def can(action_set, context_set, authorization, get_authorization_resource=lambda _, __: None,
         get_resource=lambda _, __: None, exception=None):
@@ -31,11 +32,11 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
             _permissions[context] = {}
 
         if "*" in _permissions[context]:
-            raise exceptions.contextAlreadyHasAsteriskError("The context \"%s\" already has an \"*\"" % context)
+            raise exceptions.ContextAlreadyHasAsteriskError("The context \"%s\" already has an \"*\"" % context)
 
         for action in action_set:
             if action == "*" and len(_permissions[context]) > 0:
-                raise exceptions.contextAlreadyHasActionsError(
+                raise exceptions.ContextAlreadyHasActionsError(
                     "Can't register \"*\" cause the context \"%s\" already has action_set" % context)
 
             if action in _permissions[context]:
@@ -50,39 +51,39 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
             }
 
 
-def can_i(action, target, user=None, context=None):
+def can_i(action, context, user=None, app_context=None):
     assert action, "An action must be specified"
-    assert target, "A target must be specified"
+    assert context, "A context must be specified"
 
     result = False
     auth_resource = None
     resource = None
 
-    target_action_set = _permissions.get(target) or {}
-    authorization_data = target_action_set.get(action) or target_action_set.get("*")
+    context_action_set = _permissions.get(context) or {}
+    authorization_data = context_action_set.get(action) or context_action_set.get("*")
 
     if authorization_data is not None:
-        auth_resource = authorization_data.get('get_authorization_resource')(user, context)
+        auth_resource = authorization_data.get('get_authorization_resource')(user, app_context)
 
         result = authorization_data.get('authorization')(
             user,
-            context,
+            app_context,
             auth_resource)
 
         if result:
-            resource = authorization_data.get('get_resource')(user, context)
+            resource = authorization_data.get('get_resource')(user, app_context)
 
     return result, auth_resource, resource
 
 
-def authorize(action, target, user, context=None):
-    go_ahead, auth_resource, resource = can_i(action, target, user, context)
+def authorize(action, context, user, app_context=None):
+    go_ahead, auth_resource, resource = can_i(action, context, user, app_context)
 
     if go_ahead:
         return auth_resource, resource
     else:
-        raise ((_permissions.get(target) or {}).get(action) or {}).get("exception") or \
-            exceptions.UnauthorizedResourceError(action, target, user, context, resource)
+        raise ((_permissions.get(context) or {}).get(action) or {}).get("exception") or \
+            exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
 
 
 def _is_sequence(arg):
