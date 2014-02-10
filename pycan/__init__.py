@@ -54,7 +54,6 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
 
 def can_i(action, context, user=None, app_context=None):
     assert action, "An action must be specified"
-    assert context, "A context must be specified"
 
     result = False
     auth_resource = None
