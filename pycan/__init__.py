@@ -9,7 +9,6 @@ def allow_to_all(user, app_context, resource):
 
 def can(action_set, context_set, authorization, get_authorization_resource=lambda _, __: None,
         get_resource=lambda _, __: None, exception=None):
-    assert action_set, "At least one action must be specified"
     assert authorization, "An authorization procedure must be specified"
     assert getattr(get_authorization_resource, '__call__'), "get_authorization_resource must be callable"
     assert getattr(get_resource, '__call__'), "get_resource must be callable"
@@ -53,8 +52,6 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
 
 
 def can_i(action, context, user=None, app_context=None):
-    assert action, "An action must be specified"
-
     result = False
     auth_resource = None
     resource = None
