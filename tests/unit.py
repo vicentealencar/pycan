@@ -129,6 +129,36 @@ class AuthorizeTest(PyCanTestCase):
 
 
 class ExtrasTest(PyCanTestCase):
+    def test_combine_with_or(self):
+        test_function = pycan.or_(
+            lambda u, c, r: u == c,
+            lambda u, c, r: u == r,
+            lambda u, c, r: c == r)
+
+        self.assertTrue(test_function(1, 1, 1))
+        self.assertTrue(test_function(1, 1, 0))
+        self.assertTrue(test_function(1, 0, 1))
+        self.assertTrue(test_function(0, 1, 1))
+        self.assertFalse(test_function(1, 2, 3))
+
+    def test_combine_with_and(self):
+        test_function = pycan.and_(
+            lambda u, c, r: u == c,
+            lambda u, c, r: u == r,
+            lambda u, c, r: c == r)
+
+        self.assertTrue(test_function(1, 1, 1))
+        self.assertFalse(test_function(1, 1, 0))
+        self.assertFalse(test_function(1, 0, 1))
+        self.assertFalse(test_function(0, 1, 1))
+        self.assertFalse(test_function(1, 2, 3))
+
+    def test_empty_and_raises(self):
+        self.assertRaises(AssertionError, pycan.and_)
+
+    def test_empty_or_raises(self):
+        self.assertRaises(AssertionError, pycan.or_)
+
     def test_is_sequence_is_true(self):
         self.assertTrue(pycan._is_sequence(['A','B','C','D']))
         self.assertTrue(pycan._is_sequence(('A','B','C','D')))

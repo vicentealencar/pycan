@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import inspect
 import exceptions
+import inspect
+import operator
 
 _permissions = {}
 
@@ -81,6 +82,19 @@ def authorize(action, context, user, app_context=None):
     else:
         raise ((_permissions.get(context) or {}).get(action) or {}).get("exception") or \
             exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
+
+
+def and_(*args):
+    return _combine_lambdas(operator.and_, *args)
+
+
+def or_(*args):
+    return _combine_lambdas(operator.or_, *args)
+
+
+def _combine_lambdas(combine_operation, *lambda_list):
+    assert len(lambda_list) > 0, "List of lambdas cannot be empty"
+    return lambda u, c, r: reduce(combine_operation, map(lambda l: l(u, c, r), lambda_list))
 
 
 def _is_sequence(arg):
