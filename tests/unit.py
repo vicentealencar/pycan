@@ -91,9 +91,9 @@ class CanTest(PyCanTestCase):
     def test_can_get_resource(self):
         pass
 
-class CanITest(PyCanTestCase):    
-    def test_can_i_false_result(self):    
-        pass       
+class CanITest(PyCanTestCase):
+    def test_can_i_false_result(self):
+        pass
 
     def test_can_i_true_result(self):
         pass
@@ -107,7 +107,7 @@ class AuthorizeTest(PyCanTestCase):
         auth_resource, resource = pycan.authorize(action, context, 'gandalf', self.get_basic_context())
         self.assertTrue(auth_resource)
         self.assertTrue(resource)
-    
+
     def test_authorize_fail(self):
         action, context, _, get_auth_resource, get_resource = self.get_full_permission_params()
         auth = lambda user, context, resource: user == 'gandalf' and context['location'] == 'middle earth'
@@ -162,7 +162,7 @@ class ExtrasTest(PyCanTestCase):
     def test_is_sequence_is_true(self):
         self.assertTrue(pycan._is_sequence(['A','B','C','D']))
         self.assertTrue(pycan._is_sequence(('A','B','C','D')))
-      
+
     def test_is_sequence_is_false(self):
         self.assertFalse(pycan._is_sequence('ABCD'))
         self.assertFalse(pycan._is_sequence(12345))

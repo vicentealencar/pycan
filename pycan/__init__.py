@@ -42,7 +42,7 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
 
             if action in _permissions[context]:
                 raise exceptions.ActionAlreadyExistsError(
-                    "A permission for this context resource has already been specified")
+                    "The %s permission for this context resource has already been specified" % action)
 
             _permissions[context][action] = {
                 'exception': exception,
