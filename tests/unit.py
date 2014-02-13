@@ -127,6 +127,9 @@ class AuthorizeTest(PyCanTestCase):
         self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, 'no_action', context, 'gandalf',
                           self.get_basic_context())
 
+    def test_authorize_asterisk_action(self):
+        pass
+
 
 class ExtrasTest(PyCanTestCase):
     def test_combine_with_or(self):
