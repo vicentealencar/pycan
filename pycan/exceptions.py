@@ -1,5 +1,7 @@
 class UnauthorizedResourceError(Exception):
     def __init__(self, action, app_context, user, context, resource):
+        Exception.__init__(self, 'Action %s of context %s unauthorized' % (action, context))
+
         self.action = action
         self.app_context = app_context
         self.user = user
@@ -8,30 +10,29 @@ class UnauthorizedResourceError(Exception):
 
 
 class ActionNotFoundError(Exception):
-    def __init__(self, value):
-        self.value = value
-
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
 class ContextNotFoundError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
 
 class ActionAlreadyExistsError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
 
 class ContextAlreadyHasAsteriskError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
 
 class ContextAlreadyHasActionsError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, message):
+        Exception.__init__(self, message)
 
 
 class ActionListWithAsteriskError(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, message):
+        Exception.__init__(self, message)
