@@ -1,6 +1,6 @@
 class UnauthorizedResourceError(Exception):
     def __init__(self, action, app_context, user, context, resource):
-        Exception.__init__(self, 'Action %s of context %s unauthorized' % (action, context))
+        Exception.__init__(self, 'Action %s of context %s unauthorized' % (action, app_context))
 
         self.action = action
         self.app_context = app_context
