@@ -156,6 +156,16 @@ class ExtrasTest(PyCanTestCase):
         self.assertFalse(test_function(0, 1, 1))
         self.assertFalse(test_function(1, 2, 3))
 
+    def test_combine_with_not(self):
+        self.assertTrue(pycan.not_(lambda u, c, r: False)(None, None, None))
+        self.assertFalse(pycan.not_(lambda u, c, r: True)(None, None, None))
+
+    def test_empty_not_raises(self):
+        self.assertRaises(AssertionError, pycan.not_, True)
+        self.assertRaises(AssertionError, pycan.not_, (1,2,3))
+        self.assertRaises(AssertionError, pycan.not_, False)
+        self.assertRaises(AssertionError, pycan.not_, None)
+
     def test_empty_and_raises(self):
         self.assertRaises(AssertionError, pycan.and_)
 
