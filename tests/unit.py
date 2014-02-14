@@ -127,6 +127,16 @@ class AuthorizeTest(PyCanTestCase):
         self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, 'no_action', context, 'gandalf',
                           self.get_basic_context())
 
+    def test_authorize_custom_exception_action(self):
+        class CustomException(Exception):
+            def __init__(self):
+                pass
+
+        action, context, _ = self.get_basic_permission_params()
+        pycan.can(action, context, lambda u, r, c: False, exception = CustomException)
+        self.assertRaises(CustomException, pycan.authorize, action, context, 'gandalf',
+                          self.get_basic_context())
+
     def test_authorize_asterisk_action(self):
         pass
 

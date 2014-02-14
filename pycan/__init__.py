@@ -57,7 +57,7 @@ def can_i(action, context, user=None, app_context=None):
     auth_resource = None
     resource = None
 
-    context_action_set = _permissions.get(context) or {}
+    context_action_set = _permissions.get(context, {})
     authorization_data = context_action_set.get(action) or context_action_set.get("*")
 
     if authorization_data is not None:
@@ -80,8 +80,8 @@ def authorize(action, context, user, app_context=None):
     if go_ahead:
         return auth_resource, resource
     else:
-        raise ((_permissions.get(context) or {}).get(action) or {}).get("exception") or \
-            exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
+         exception = ((_permissions.get(context, {})).get(action, {})).get("exception")
+         raise exception() if exception else exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
 
 
 def and_(*args):
