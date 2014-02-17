@@ -81,7 +81,13 @@ def authorize(action, context, user, app_context=None):
         return auth_resource, resource
     else:
          exception = ((_permissions.get(context, {})).get(action, {})).get("exception")
-         raise exception() if exception else exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
+         raise exception(
+            action=action,
+            context=context,
+            user=user,
+            app_context=app_context,
+            resource=resource
+         ) if exception else exceptions.UnauthorizedResourceError(action, context, user, app_context, resource)
 
 
 def and_(*args):
