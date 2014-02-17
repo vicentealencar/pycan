@@ -129,7 +129,7 @@ class AuthorizeTest(PyCanTestCase):
 
     def test_authorize_custom_exception_action(self):
         class CustomException(Exception):
-            def __init__(self):
+            def __init__(self, **kwargs):
                 pass
 
         action, context, _ = self.get_basic_permission_params()
@@ -138,7 +138,13 @@ class AuthorizeTest(PyCanTestCase):
                           self.get_basic_context())
 
     def test_authorize_asterisk_action(self):
-        pass
+        _, context, auth = self.get_basic_permission_params()
+        pycan.can('*', context, auth)
+        app_context = self.get_basic_context()
+        try:
+            pycan.authorize('foo', context, app_context)
+        except Exception:
+            self.fail("authorize raised UnauthorizedResourceError")
 
 
 class ExtrasTest(PyCanTestCase):
