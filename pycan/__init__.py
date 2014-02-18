@@ -18,7 +18,7 @@ def can(action_set, context_set, authorization, get_authorization_resource=lambd
     assert len(inspect.getargspec(get_authorization_resource).args) == 2, \
         "get_authorization_resource must accept 2 parameters"
     assert len(inspect.getargspec(get_resource).args) == 2, "get_resource must accept 2 parameters"
-    assert len(inspect.getargspec(authorization).args) == 3, "authorization must accept 3 parameters"
+    _assert_authorization_parameters(authorization)
 
     if not _is_sequence(context_set):
         context_set = [context_set]
@@ -92,17 +92,24 @@ def authorize(action, context, user, app_context=None):
 
 def and_(*args):
     assert len(args) > 0, "List of authorization methods cannot be empty"
+    map(_assert_authorization_parameters, args)
     return lambda u, c, r: reduce(lambda prev, current: prev and current(u, c, r), args, True)
 
 
 def or_(*args):
     assert len(args) > 0, "List of authorization methods cannot be empty"
+    map(_assert_authorization_parameters, args)
     return lambda u, c, r: reduce(lambda prev, current: prev or current(u, c, r), args, False)
 
 
 def not_(method):
-    assert inspect.isfunction(method), "Method must be a callable"
+    _assert_authorization_parameters(method)
     return lambda u, c, r: not method(u, c, r)
+
+
+def _assert_authorization_parameters(method):
+    assert inspect.isfunction(method), "Authorization must be a callable"
+    assert len(inspect.getargspec(method).args) == 3, "Authorization must accept 3 parameters"
 
 
 def _is_sequence(arg):

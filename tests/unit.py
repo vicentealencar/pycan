@@ -1,7 +1,7 @@
 import unittest
 import pycan
 
-from mock import Mock
+from mock import Mock, patch
 
 
 class PyCanTestCase(unittest.TestCase):
@@ -83,6 +83,11 @@ class CanTest(PyCanTestCase):
         action, context, auth = self.get_basic_permission_params()
         pycan.can('*', context, auth)
         self.assertRaises(pycan.exceptions.ContextAlreadyHasAsteriskError, pycan.can, action, context, auth)
+
+    def test_authorization_param_validation(self):
+        with patch('pycan._assert_authorization_parameters') as assert_parameters:
+            self.test_can_single_action_single_context()
+            self.assertEquals(assert_parameters.call_count, 1)
 
     def test_can_authorization(self):
         pass
@@ -178,67 +183,81 @@ class ExtrasTest(PyCanTestCase):
         self.assertTrue(pycan.not_(lambda u, c, r: False)(None, None, None))
         self.assertFalse(pycan.not_(lambda u, c, r: True)(None, None, None))
 
-    def test_empty_not_raises(self):
-        self.assertRaises(AssertionError, pycan.not_, True)
-        self.assertRaises(AssertionError, pycan.not_, (1,2,3))
-        self.assertRaises(AssertionError, pycan.not_, False)
-        self.assertRaises(AssertionError, pycan.not_, None)
+    def test_not_param_validation(self):
+        with patch('pycan._assert_authorization_parameters') as assert_parameters:
+            self.test_combine_with_not()
+            self.assertEquals(assert_parameters.call_count, 2)
 
     def test_or_is_lazy(self):
-        test_functions = [Mock(), Mock(), Mock()]
-        combined_function = pycan.or_(*test_functions)
+        with patch('pycan._assert_authorization_parameters') as assert_parameters:
+            assert_parameters.return_value = True
+            test_functions = [Mock(), Mock(), Mock()]
+            combined_function = pycan.or_(*test_functions)
 
-        test_functions[0].return_value = True
-        combined_function(1, 1, 3)
-        test_functions[0].assert_called_once_with(1, 1, 3)
-        self.assertEquals(test_functions[1].call_count, 0)
-        self.assertEquals(test_functions[2].call_count, 0)
+            test_functions[0].return_value = True
+            combined_function(1, 1, 3)
+            test_functions[0].assert_called_once_with(1, 1, 3)
+            self.assertEquals(test_functions[1].call_count, 0)
+            self.assertEquals(test_functions[2].call_count, 0)
 
-        test_functions[0].return_value = False
-        test_functions[1].return_value = True
-        combined_function(2, 1, 2)
-        self.assertEquals(test_functions[0].call_count, 2)
-        test_functions[1].assert_called_once_with(2, 1, 2)
-        self.assertEquals(test_functions[2].call_count, 0)
+            test_functions[0].return_value = False
+            test_functions[1].return_value = True
+            combined_function(2, 1, 2)
+            self.assertEquals(test_functions[0].call_count, 2)
+            test_functions[1].assert_called_once_with(2, 1, 2)
+            self.assertEquals(test_functions[2].call_count, 0)
 
-        test_functions[0].return_value = False
-        test_functions[1].return_value = False
-        test_functions[2].return_value = True
-        combined_function(1, 2, 2)
-        self.assertEquals(test_functions[0].call_count, 3)
-        self.assertEquals(test_functions[1].call_count, 2)
-        test_functions[2].assert_called_once_with(1, 2, 2)
+            test_functions[0].return_value = False
+            test_functions[1].return_value = False
+            test_functions[2].return_value = True
+            combined_function(1, 2, 2)
+            self.assertEquals(test_functions[0].call_count, 3)
+            self.assertEquals(test_functions[1].call_count, 2)
+            test_functions[2].assert_called_once_with(1, 2, 2)
 
     def test_and_is_lazy(self):
-        test_functions = [Mock(), Mock(), Mock()]
-        combined_function = pycan.and_(*test_functions)
+        with patch('pycan._assert_authorization_parameters') as assert_parameters:
+            assert_parameters.return_value = True
+            test_functions = [Mock(), Mock(), Mock()]
+            combined_function = pycan.and_(*test_functions)
 
-        test_functions[0].return_value = False
-        combined_function(1, 2, 1)
-        test_functions[0].assert_called_once_with(1, 2, 1)
-        self.assertEquals(test_functions[1].call_count, 0)
-        self.assertEquals(test_functions[2].call_count, 0)
+            test_functions[0].return_value = False
+            combined_function(1, 2, 1)
+            test_functions[0].assert_called_once_with(1, 2, 1)
+            self.assertEquals(test_functions[1].call_count, 0)
+            self.assertEquals(test_functions[2].call_count, 0)
 
-        test_functions[0].return_value = True
-        test_functions[1].return_value = False
-        combined_function(1, 1, 2)
-        self.assertEquals(test_functions[0].call_count, 2)
-        test_functions[1].assert_called_once_with(1, 1, 2)
-        self.assertEquals(test_functions[2].call_count, 0)
+            test_functions[0].return_value = True
+            test_functions[1].return_value = False
+            combined_function(1, 1, 2)
+            self.assertEquals(test_functions[0].call_count, 2)
+            test_functions[1].assert_called_once_with(1, 1, 2)
+            self.assertEquals(test_functions[2].call_count, 0)
 
-        test_functions[0].return_value = True
-        test_functions[1].return_value = True
-        test_functions[2].return_value = True
-        combined_function(2, 2, 2)
-        self.assertEquals(test_functions[0].call_count, 3)
-        self.assertEquals(test_functions[1].call_count, 2)
-        test_functions[2].assert_called_once_with(2, 2, 2)
+            test_functions[0].return_value = True
+            test_functions[1].return_value = True
+            test_functions[2].return_value = True
+            combined_function(2, 2, 2)
+            self.assertEquals(test_functions[0].call_count, 3)
+            self.assertEquals(test_functions[1].call_count, 2)
+            test_functions[2].assert_called_once_with(2, 2, 2)
 
-    def test_empty_and_raises(self):
+    def test_and_param_validation(self):
         self.assertRaises(AssertionError, pycan.and_)
+        with patch('pycan._assert_authorization_parameters') as assert_params:
+            self.test_combine_with_and()
+            self.assertEquals(assert_params.call_count, 3)
 
-    def test_empty_or_raises(self):
+    def test_or_param_validation(self):
         self.assertRaises(AssertionError, pycan.or_)
+        with patch('pycan._assert_authorization_parameters') as assert_params:
+            self.test_combine_with_or()
+            self.assertEquals(assert_params.call_count, 3)
+
+    def test_assert_authorization_params(self):
+        self.assertRaises(AssertionError, pycan._assert_authorization_parameters, None)
+        self.assertRaises(AssertionError, pycan._assert_authorization_parameters, lambda u, c: True)
+        pycan._assert_authorization_parameters(lambda u, c, r: True)
 
     def test_is_sequence_is_true(self):
         self.assertTrue(pycan._is_sequence(['A','B','C','D']))
