@@ -1,6 +1,8 @@
 import unittest
 import pycan
 
+from mock import Mock
+
 
 class PyCanTestCase(unittest.TestCase):
     def setUp(self):
@@ -181,6 +183,56 @@ class ExtrasTest(PyCanTestCase):
         self.assertRaises(AssertionError, pycan.not_, (1,2,3))
         self.assertRaises(AssertionError, pycan.not_, False)
         self.assertRaises(AssertionError, pycan.not_, None)
+
+    def test_or_is_lazy(self):
+        test_functions = [Mock(), Mock(), Mock()]
+        combined_function = pycan.or_(*test_functions)
+
+        test_functions[0].return_value = True
+        combined_function(1, 1, 3)
+        test_functions[0].assert_called_once_with(1, 1, 3)
+        self.assertEquals(test_functions[1].call_count, 0)
+        self.assertEquals(test_functions[2].call_count, 0)
+
+        test_functions[0].return_value = False
+        test_functions[1].return_value = True
+        combined_function(2, 1, 2)
+        self.assertEquals(test_functions[0].call_count, 2)
+        test_functions[1].assert_called_once_with(2, 1, 2)
+        self.assertEquals(test_functions[2].call_count, 0)
+
+        test_functions[0].return_value = False
+        test_functions[1].return_value = False
+        test_functions[2].return_value = True
+        combined_function(1, 2, 2)
+        self.assertEquals(test_functions[0].call_count, 3)
+        self.assertEquals(test_functions[1].call_count, 2)
+        test_functions[2].assert_called_once_with(1, 2, 2)
+
+    def test_and_is_lazy(self):
+        test_functions = [Mock(), Mock(), Mock()]
+        combined_function = pycan.and_(*test_functions)
+
+        test_functions[0].return_value = False
+        combined_function(1, 2, 1)
+        test_functions[0].assert_called_once_with(1, 2, 1)
+        self.assertEquals(test_functions[1].call_count, 0)
+        self.assertEquals(test_functions[2].call_count, 0)
+
+        test_functions[0].return_value = True
+        test_functions[1].return_value = False
+        combined_function(1, 1, 2)
+        self.assertEquals(test_functions[0].call_count, 2)
+        test_functions[1].assert_called_once_with(1, 1, 2)
+        self.assertEquals(test_functions[2].call_count, 0)
+
+        test_functions[0].return_value = True
+        test_functions[1].return_value = True
+        test_functions[2].return_value = True
+        combined_function(2, 2, 2)
+        self.assertEquals(test_functions[0].call_count, 3)
+        self.assertEquals(test_functions[1].call_count, 2)
+        test_functions[2].assert_called_once_with(2, 2, 2)
 
     def test_empty_and_raises(self):
         self.assertRaises(AssertionError, pycan.and_)

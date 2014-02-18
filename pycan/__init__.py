@@ -91,21 +91,18 @@ def authorize(action, context, user, app_context=None):
 
 
 def and_(*args):
-    return _combine_lambdas(operator.and_, *args)
+    assert len(args) > 0, "List of authorization methods cannot be empty"
+    return lambda u, c, r: reduce(lambda prev, current: prev and current(u, c, r), args, True)
 
 
 def or_(*args):
-    return _combine_lambdas(operator.or_, *args)
+    assert len(args) > 0, "List of authorization methods cannot be empty"
+    return lambda u, c, r: reduce(lambda prev, current: prev or current(u, c, r), args, False)
 
 
 def not_(method):
     assert inspect.isfunction(method), "Method must be a callable"
     return lambda u, c, r: not method(u, c, r)
-
-
-def _combine_lambdas(combine_operation, *lambda_list):
-    assert len(lambda_list) > 0, "List of lambdas cannot be empty"
-    return lambda u, c, r: reduce(combine_operation, map(lambda l: l(u, c, r), lambda_list))
 
 
 def _is_sequence(arg):
