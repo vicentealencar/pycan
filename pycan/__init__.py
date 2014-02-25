@@ -56,31 +56,36 @@ def can_i(action, context, user=None, app_context=None):
     result = False
     auth_resource = None
     resource = None
+    exception = False
 
     context_action_set = _permissions.get(context, {})
     authorization_data = context_action_set.get(action) or context_action_set.get("*")
 
     if authorization_data is not None:
         auth_resource = authorization_data.get('get_authorization_resource')(user, app_context)
+        
+        try:
+            result = authorization_data.get('authorization')(
+                user,
+                app_context,
+                auth_resource)
 
-        result = authorization_data.get('authorization')(
-            user,
-            app_context,
-            auth_resource)
+        except Exception as e:
+            exception = e.__class__
 
         if result:
             resource = authorization_data.get('get_resource')(user, app_context)
 
-    return result, auth_resource, resource
+    return result, auth_resource, resource, exception
 
 
 def authorize(action, context, user, app_context=None):
-    go_ahead, auth_resource, resource = can_i(action, context, user, app_context)
+    go_ahead, auth_resource, resource, custom_exception = can_i(action, context, user, app_context)
 
     if go_ahead:
         return auth_resource, resource
     else:
-         exception = ((_permissions.get(context, {})).get(action, {})).get("exception")
+         exception = custom_exception or ((_permissions.get(context, {})).get(action, {})).get("exception")
          raise exception(
             action=action,
             context=context,

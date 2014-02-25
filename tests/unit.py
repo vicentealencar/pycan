@@ -154,6 +154,21 @@ class AuthorizeTest(PyCanTestCase):
             self.fail("authorize raised UnauthorizedResourceError")
 
 
+class ExceptionTest(PyCanTestCase):
+
+    def test_custom_exception_per_method_is_thrown(self):
+        class CustomException(Exception):
+            def __init__(self, **kwargs):
+                pass 
+
+        def custom_auth(u, c, r):
+            raise CustomException()
+
+        action, context, _ = self.get_basic_permission_params()
+        pycan.can(action, context, custom_auth)        
+        self.assertRaises(CustomException, pycan.authorize, action, context, 'gandalf',
+                          self.get_basic_context())
+
 class ExtrasTest(PyCanTestCase):
     def test_combine_with_or(self):
         test_function = pycan.or_(
@@ -270,3 +285,4 @@ class ExtrasTest(PyCanTestCase):
     def test_allow_to_all(self):
         context = self.get_basic_context()
         self.assertTrue(pycan.allow_to_all('gandalf',context, {'foo':'bar'}))
+
