@@ -117,3 +117,17 @@ def _is_sequence(arg):
     return (not hasattr(arg, "strip") and
             hasattr(arg, "__getitem__") or
             hasattr(arg, "__iter__"))
+
+
+def revoke(action_set, context_set):
+    if(not _is_sequence(action_set)):
+        action_set = [action_set]
+
+    if(not _is_sequence(context_set)):
+        context_set = [context_set]
+
+    for context in context_set:
+        if context  in _permissions:
+            for action in action_set:
+                _permissions[context].pop(action)
+

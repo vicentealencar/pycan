@@ -286,3 +286,16 @@ class ExtrasTest(PyCanTestCase):
         context = self.get_basic_context()
         self.assertTrue(pycan.allow_to_all('gandalf',context, {'foo':'bar'}))
 
+    def test_revoke(self):
+        pycan.can('a', 'b', pycan.allow_to_all)
+        try:
+            auth_resource, _ = pycan.authorize('a', 'b', 'gandalf', self.get_basic_context())
+        except Exception:
+            self.fail("authorize raised UnauthorizedResourceError")
+
+        pycan.revoke('a', 'b')
+        self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, 'a', 'b', 'elrond',
+                          self.get_basic_context())
+
+
+
