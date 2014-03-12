@@ -1,8 +1,23 @@
 #PyCan
 
+PyCan is an open source authorization library designed to be very lightweight, easily installed and easlily used with any python application.
+
+
+
 ##Instalation
 
 ##Usage
+
+PyCan uses a white-list approach. That means that every entry point of your application is, by default, denied. So, you are going to have to authorize the entry-points you want to be accessible in your application.
+
+###Actions
+
+We are going to call `action` everything an `user` may be trying to perform in the system. 
+Let's take as an example some web based [ERP](http://en.wikipedia.org/wiki/Enterprise_resource_planning).
+
+###Contexts
+
+###Application Context
 
 ###Enabling PyCan
 
@@ -20,6 +35,8 @@ except UnauthorizedResourceError, e:
 
 ###Registering authorizations
 
+
+
 ```python
 from pycan import can
 
@@ -27,7 +44,6 @@ can('some_action', 'some_context', check_something)
 ```
 
 ####Actions
-
 
 ####Contexts
 
@@ -62,6 +78,7 @@ can('some_action', 'some_context', and_(one_condition, another_condition))
 
 #####allow_to_all
 
+###Revoking an authorization
 
 ##Contributing
 
