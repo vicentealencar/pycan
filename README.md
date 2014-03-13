@@ -10,10 +10,14 @@ PyCan is an open source authorization library designed to be very lightweight, e
 
 PyCan uses a white-list approach. That means that every entry point of your application is, by default, denied. So, you are going to have to authorize the entry-points you want to be accessible in your application.
 
+###User
+
+An `user` is, generally, the entity that is trying to perform some `action` in the system. Like requesting a web page or inserting something in a database, download a file.
+
+
 ###Actions
 
-We are going to call `action` everything an `user` may be trying to perform in the system. 
-Let's take as an example some web based [ERP](http://en.wikipedia.org/wiki/Enterprise_resource_planning).
+An `action` is somthing that can be executed by a system, like a command, a function, a controller, a file, a web page or something else that suits your needs. 
 
 ###Contexts
 
