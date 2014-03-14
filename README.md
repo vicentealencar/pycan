@@ -64,25 +64,27 @@ can('some_action', 'some_context', some_condition)
 The [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) method is defined as follows:
 
 ```python
-can(List|Sttring:action_set, 
+can(
+    List|String:action_set, 
     List:context_set, 
-    Function:authorization, 
-    Function:authorization_resource_provider, 
-    Function:authorized_resource_provider, 
-    Exception:custom_exception) -> None
+    Function(user, application_context, authorized_resource):authorization -> Boolean, 
+    Function(user, application_context):authorization_resource_provider -> Anything, 
+    Function():authorized_resource_provider -> Anything, 
+    Exception(kwargs):custom_exception
+) -> None
 ```
 
 ####Action set
 
-#####Everything ('*')
-
-#####None
-
+The `action_set` parameter receives a list with strings or a single string.
+It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
+If you want to register the authorization for every `action` within a `context` you can use `'*'`.
+If some context already have an `'*'` and someone try to register a new `action` for the same `context` a [`ContextAlreadyHasAsteriskError`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L36) exception will be raised
 
 ####Contexts
 
 ####Authorization Methods
-
+ 
 #####User
 
 #####Resource
