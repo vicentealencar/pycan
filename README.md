@@ -127,6 +127,6 @@ can('some_action', 'some_context', and_(one_condition, another_condition))
 
 ###Documentation
 
-###Who uses
+##Who uses
 
-[JusBrasil](http://www.jusbrasil.com.br)
+* [JusBrasil](http://www.jusbrasil.com.br)
