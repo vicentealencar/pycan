@@ -64,9 +64,12 @@ can('some_action', 'some_context', some_condition)
 The [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) method is defined as follows:
 
 ```python
-can(List|Sttring:action_set, List:context_set, Function:authorization, 
-    Function:authorization_resource_provider, Function:authorized_resource_provider, 
-    Exception:custom_exception)
+can(List|Sttring:action_set, 
+    List:context_set, 
+    Function:authorization, 
+    Function:authorization_resource_provider, 
+    Function:authorized_resource_provider, 
+    Exception:custom_exception) -> None
 ```
 
 ####Action set
