@@ -48,12 +48,12 @@ except UnauthorizedResourceError, e:
 
 ```
 
-Once PyCan is enabled, by default, every `action` whitin `context` of your application is disabled/forbidden.
+Once PyCan is enabled, by default, every `action` whitin every `context` of your application is disabled/forbidden.
 
 
 ###Registering authorizations
 
-For enabling the access to some `action` whitin some `context` you have register it using the method [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
+For enabling the access to some `action` whitin some `context` you have to register it using the method [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
 
 ```python
 from pycan import can
@@ -124,3 +124,7 @@ can('some_action', 'some_context', and_(one_condition, another_condition))
 ###Tests
 
 ###Documentation
+
+###Who uses
+
+(JusBrasil)[http://www.jusbrasil.com.br]
