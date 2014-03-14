@@ -10,20 +10,31 @@ PyCan is an open source authorization library designed to be very lightweight, e
 
 PyCan uses a white-list approach. That means that every entry point of your application is, by default, denied. So, you are going to have to authorize the entry-points you want to be accessible in your application.
 
+The following definitions were made thinking in the most general terms possible, so PyCan can be used in any kind of application or context.
+
 ###User
 
-An `user` is, generally, the entity that is trying to perform some `action` in the system. Like requesting a web page or inserting something in a database, download a file.
+An `user` is, generally, the entity that is trying to perform some `action` on the system like: requesting a web page or inserting something in a database, download a file, etc.
 
 
 ###Actions
 
-An `action` is somthing that can be executed by a system, like a command, a function, a controller, a file, a web page or something else that suits your needs. 
+An `action` is something that can be executed by a system, like a command, a function, a controller, a file, a web page or something else that suits your needs. 
+
 
 ###Contexts
 
+A `context` is some kind of container or namespace for an action like a class, a module, a sub-application, etc.
+
+
 ###Application Context
 
+An `application context` is the current context your application is in the moment of the authorization. It could be the performed request, in case of a web application, or the screen that is shown currently, etc.
+
+
 ###Enabling PyCan
+
+PyCan is enabled when you intercept your application entry points calling the method [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78).
 
 ```python
 from pycan import authorize
@@ -37,20 +48,35 @@ except UnauthorizedResourceError, e:
 
 ```
 
+Once PyCan is enabled, by default, every `action` whitin `context` of your application is disabled/forbidden.
+
+
 ###Registering authorizations
 
-
+For enabling the access to some `action` whitin some `context` you have register it using the method [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
 
 ```python
 from pycan import can
 
-can('some_action', 'some_context', check_something)
+can('some_action', 'some_context', some_condition)
 ```
 
-####Actions
+The [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) method is defined as follows:
+
+```python
+can(List|Sttring:action_set, List:context_set, Function:authorization, 
+    Function:authorization_resource_provider, Function:authorized_resource_provider, 
+    Exception:custom_exception)
+```
+
+####Action set
+
+#####Everything ('*')
+
+#####None
+
 
 ####Contexts
-
 
 ####Authorization Methods
 
@@ -61,6 +87,10 @@ can('some_action', 'some_context', check_something)
 #####Application Context
 
 ####Resource Providers
+
+#####Authorization Resource Provider
+
+#####Authorized Resource Provider
 
 ####Exceptions
 
