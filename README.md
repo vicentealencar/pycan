@@ -31,6 +31,9 @@ A `context` is some kind of container or namespace for an action like a class, a
 
 An `application context` is the current context your application is in the moment of the authorization. It could be the performed request, in case of a web application, or the screen that is shown currently, etc.
 
+==
+
+
 
 ###Enabling PyCan
 
@@ -76,13 +79,20 @@ can(
 
 ####Action set
 
-The `action_set` parameter receives a list with strings or a single string.
-It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
+The `action_set` parameter receives a list with strings or a single string. It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
+
 If you want to register the authorization for every `action` within a `context` you can use `'*'`.
-If some context already have an `'*'` and someone try to register a new `action` for the same `context` a [`ContextAlreadyHasAsteriskError`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L36) exception will be raised
+If some context already have an `'*'` and someone try to register a new `action` for the same `context` a [`ContextAlreadyHasAsteriskError`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L36) exception will be raised. 
+The same is valid if someone tries to register an `'*'` for a context that already has `actions` registered, but this time a [`ContextAlreadyHasActionsError`](https://github.com/jusbrasil/pycan/blob/master/pycan/exceptions.py#L31) exception will be raised.
 
-####Contexts
+`Actions` cannot be overwritten, so if an `action` is already registered within a context and someone tries to overwrite it, an [`ActionAlreadyExistsError`](https://github.com/jusbrasil/pycan/blob/master/pycan/exceptions.py#L21) exception will be raised.
 
+####Context set
+
+The `context_set` parameter receives a list with strings or a single string. It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
+
+
+ 
 ####Authorization Methods
  
 #####User
