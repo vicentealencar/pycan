@@ -70,7 +70,7 @@ The [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11
 can(
     List|String:action_set, 
     List:context_set, 
-    Function(user, application_context, authorized_resource):authorization -> Boolean, 
+    Function(user, application_context, authorization_resource):authorization -> Boolean, 
     Function(user, application_context):authorization_resource_provider -> Anything, 
     Function():authorized_resource_provider -> Anything, 
     Exception(kwargs):custom_exception
@@ -113,7 +113,17 @@ The `context_set` parameter receives a list with strings or a single string. It 
 ####Helper functions
 
 #####and_
-This method combines n authorization methods with a boolean and, and returns a authorization method
+
+The `and_` method receives as many `authorizations` as you want and returns an `authorization` that is the combination of the given ones with the boolean `and`
+
+
+```python
+and_(
+    [Function(user, app_context, authorization_resource)->Boolean],
+)->Function(user, app_context, authorization_resource)->Boolean
+```
+
+Example:
 
 ```python
 from pycan import can, and_
