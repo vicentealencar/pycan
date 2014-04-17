@@ -5,7 +5,7 @@ import operator
 
 _permissions = {}
 
-def allow_to_all(user, app_context, resource):
+def allow_to_all(user, context, resource):
      return True
 
 def can(action_set, target_set, authorization, get_authorization_resource=lambda _, __: None,
@@ -52,7 +52,7 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
             }
 
 
-def can_i(action, target, user=None, app_context=None):
+def can_i(action, target, user=None, context=None):
     result = False
     auth_resource = None
     resource = None
@@ -62,21 +62,21 @@ def can_i(action, target, user=None, app_context=None):
     authorization_data = target_action_set.get(action) or target_action_set.get("*")
 
     if authorization_data is not None:
-        auth_resource = authorization_data.get('get_authorization_resource')(user, app_context)
+        auth_resource = authorization_data.get('get_authorization_resource')(user, context)
         
         result = authorization_data.get('authorization')(
             user,
-            app_context,
+            context,
             auth_resource)
 
         if result:
-            resource = authorization_data.get('get_resource')(user, app_context)
+            resource = authorization_data.get('get_resource')(user, context)
 
     return result, auth_resource, resource, 
 
 
-def authorize(action, target, user, app_context=None):
-    go_ahead, auth_resource, resource= can_i(action, target, user, app_context)
+def authorize(action, target, user, context=None):
+    go_ahead, auth_resource, resource= can_i(action, target, user, context)
 
     if go_ahead:
         return auth_resource, resource
@@ -86,9 +86,9 @@ def authorize(action, target, user, app_context=None):
             action=action,
             target=target,
             user=user,
-            app_context=app_context,
+            context=context,
             resource=resource
-         ) if exception else exceptions.UnauthorizedResourceError(action, target, user, app_context, resource)
+         ) if exception else exceptions.UnauthorizedResourceError(action, target, user, context, resource)
 
 
 def and_(*args):
