@@ -1,152 +1,117 @@
 #PyCan
 
-PyCan is an open source authorization library designed to be very lightweight, easily installed and easlily used with any python application.
+PyCan is a framework-agnostic open source authorization library that can be easily integrated with any Python application.
+
+PyCan's primary goal is to make sure users are kept on the line and don't do anything they were not supposed to.
+
+PyCan's two main functions are [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78) and [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11). [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) is used for granting permission for a `user` to perform an `action` on a given `target`, whereas the `authorize` method performs the authorization per se.
+
+PyCan uses a white-list approach, which means that authorization will be denied for any (action, target) pairs that were not explicitly granted permissions with a call to [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
 
 
+##Installation
 
-##Instalation
+`pip install pycan`
 
-##Usage
+##Getting started
 
-PyCan uses a white-list approach. That means that every entry point of your application is, by default, denied. So, you are going to have to authorize the entry-points you want to be accessible in your application.
+### 1. Declare authorization rules
 
-The following definitions were made thinking in the most general terms possible, so PyCan can be used in any kind of application or context.
+```python
+from pycan import can
 
-###User
+can(['view', 'edit'], # Action that is being performed on a given target
+  'profile.pictures',  # The target where the action will be performed
+  lambda user, context, authorization_resource: user.id in authorization_resource.owners, # The authorization rule
+  get_authorization_resource=lambda user, context: load_profile(context.profile_id), # The return value from this lambda will be passed as the authorization_resource to the above authorization rule
+  get_resource=lambda user, context: load_profile_pictures(context.profile_id)) # This function will be called if authorization succeeds and its result will be provided for the application to use
+```
 
-An `user` is, generally, the entity that is trying to perform some `action` on the system like: requesting a web page or inserting something in a database, download a file, etc.
+As the example above shows, a call to  [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) always expects an `action` (the first parameter), a `target` (the second parameter) and an `authorization rule` (the 3rd parameter).
 
+The `get_authorization_resource` and `get_resource` parameters are optional and they will be explained further below.
 
-###Actions
+#### 1.1. Actions and Targets
 
-An `action` is something that can be executed by a system, like a command, a function, a controller, a file, a web page or something else that suits your needs. 
+An `action`/`target` pair is basically what a given `user` is trying to do with the application. In the example above, a user is trying to edit or view (actions) profile pictures (target).
 
+Both the `action` and the `target` parameters accept lists. For such cases, the authorization rule will be applied to any of the combination of the actions and targets provided.
 
-###Contexts
+#### 1.2. Authorization rules
 
-A `context` is some kind of container or namespace for an action like a class, a module, a sub-application, etc.
+Authorization rules are functions that determine whether or not the user is allowed to perform the `action` on the `target`. Those functions must always accept three parameters: user, context and authorization resource.
 
+##### User
 
-###Application Context
+This is obvious :)
 
-An `application context` is the current context your application is in the moment of the authorization. It could be the performed request, in case of a web application, or the screen that is shown currently, etc.
+#### Context
 
-==
+The context is everything that is going on at the moment that the authorization took place. In a web application, for instance, the context could be the request parameters.
 
+### 1.3. The `get_authorization_resource` parameter
 
+Authorization resource consists of data required to perform the authorization that has not yet been loaded.
 
-###Enabling PyCan
+In the example above, we are trying to make sure that a user can edit or view profile pictures. In order to determine that, the profile must be loaded prior to running the authorization rule. That's where the `get_authorization_resource` parameter comes to picture. This parameter accepts a function that will be responsbile for loading the profile (the authorization resource). Its return value is passed to the 3rd parameter of the authorization rule (`authorization_resource`).
 
-PyCan is enabled when you intercept your application entry points calling the method [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78).
+### 1.4. The `get_resource` parameter
+
+This parameter is optional and it is called only if authorization succeeds. Its main goal is to provide the application with the resource it needs to implement the user action.
+
+In the example above, `get_resource` will return the profile pictures the `user` is trying to edit or view.
+
+### 2. Combining authorization rules
+
+In section 1 we have taught you how to create an authorization rule that requires an authorization resource and loads a resource if authorization succeeds. Now, say you would like to allow admin users to view/edit anybody's profile pictures. One way to implement this is to change the authorization rule to also check if the user is an admin:
+
+```python
+from pycan import can
+
+can(['view', 'edit'], 
+  'profile.pictures',  
+  lambda user, context, authorization_resource: user.admin or (user.id in authorization_resource.owners), 
+  get_authorization_resource=lambda user, context: load_profile(context.profile_id), 
+  get_resource=lambda user, context: load_profile_pictures(context.profile_id)) 
+```
+
+The problem with the implementation above is that it does not favor code reuse. The `user.admin` check would need to be duplicated on every place where admins have special permissions.
+
+Fortunately, PyCan allows you to effortlessly combine authorization functions through the `or_`, `and_` and `not_` functions:
+
+```python
+from pycan import can, or_
+
+def user_is_admin(user, context, authorization_resource):
+  return user.admin
+
+can(['view', 'edit'], 
+  'profile.pictures',  
+  or_(
+    user_is_admin,
+    lambda user, context, authorization_resource:  user.id in authorization_resource.owners), 
+  get_authorization_resource=lambda user, context: load_profile(context.profile_id), 
+  get_resource=lambda user, context: load_profile_pictures(context.profile_id)) 
+```
+
+The `and_` and `or_` functions also do perform short-circuiting. Therefore, it will not perform unncessary evaluations of authorization rules. E.g.: In the example above, it would not execute the second authorization rule if the user is an admin.
+
+### 3. Authorizing
+
+The authorization itself happens when your application's entry points are intercepted by calling the [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78) method:
 
 ```python
 from pycan import authorize
 
 try:
-    authorize(action, context, application_context)
+  pycan.authorize(action, target, user=user, context=context)
 except UnauthorizedResourceError, e:
     #do nothing
-  
-#do that thing
 
 ```
 
-Once PyCan is enabled, by default, every `action` whitin every `context` of your application is disabled/forbidden.
+Notice that `action`, `target`, `user` and `context` are mapped to the exact same objects used in the calls to the [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) method.
 
+The call to [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78) will raise an UnauthorizedResourceError if the authorization rule defined by the call to [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) does not evaluate to True or if an authorization rule for that given action/target pair does not exist.
 
-###Registering authorizations
-
-For enabling the access to some `action` whitin some `context` you have to register it using the method [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
-
-```python
-from pycan import can
-
-can('some_action', 'some_context', some_condition)
-```
-
-The [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) method is defined as follows:
-
-```python
-can(
-    List|String:action_set, 
-    List:context_set, 
-    Function(user, application_context, authorization_resource):authorization -> Boolean, 
-    Function(user, application_context):authorization_resource_provider -> Anything, 
-    Function():authorized_resource_provider -> Anything, 
-    Exception(kwargs):custom_exception
-) -> None
-```
-
-####Action set
-
-The `action_set` parameter receives a list with strings or a single string. It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
-
-If you want to register the authorization for every `action` within a `context` you can use `'*'`.
-If some context already have an `'*'` and someone try to register a new `action` for the same `context` a [`ContextAlreadyHasAsteriskError`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L36) exception will be raised. 
-The same is valid if someone tries to register an `'*'` for a context that already has `actions` registered, but this time a [`ContextAlreadyHasActionsError`](https://github.com/jusbrasil/pycan/blob/master/pycan/exceptions.py#L31) exception will be raised.
-
-`Actions` cannot be overwritten, so if an `action` is already registered within a context and someone tries to overwrite it, an [`ActionAlreadyExistsError`](https://github.com/jusbrasil/pycan/blob/master/pycan/exceptions.py#L21) exception will be raised.
-
-####Context set
-
-The `context_set` parameter receives a list with strings or a single string. It also accepts [`None`](http://docs.python.org/2/library/constants.html#None).
-
-
- 
-####Authorization Methods
- 
-#####User
-
-#####Resource
-
-#####Application Context
-
-####Resource Providers
-
-#####Authorization Resource Provider
-
-#####Authorized Resource Provider
-
-####Exceptions
-
-
-####Helper functions
-
-#####and_
-
-The `and_` method receives as many `authorizations` as you want and returns an `authorization` that is the combination of the given ones with the boolean `and`
-
-
-```python
-and_(
-    [Function(user, app_context, authorization_resource)->Boolean],
-)->Function(user, app_context, authorization_resource)->Boolean
-```
-
-Example:
-
-```python
-from pycan import can, and_
-
-can('some_action', 'some_context', and_(one_condition, another_condition))
-```
-
-#####or_
-
-#####not_
-
-#####allow_to_all
-
-###Revoking an authorization
-
-##Contributing
-
-###Coding
-
-###Tests
-
-###Documentation
-
-##Who uses
-
-* [JusBrasil](http://www.jusbrasil.com.br)
+It is up to your program to handle that exception. For instance, in a web app, you could have the app return a 403.
