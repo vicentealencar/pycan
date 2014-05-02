@@ -92,10 +92,10 @@ class CanTest(PyCanTestCase):
     def test_can_authorization(self):
         pass
 
-    def test_can_get_authorization_resource(self):
+    def test_can_load_before(self):
         pass
 
-    def test_can_get_resource(self):
+    def test_can_load_after(self):
         pass
 
 class CanITest(PyCanTestCase):
@@ -108,17 +108,17 @@ class CanITest(PyCanTestCase):
 
 class AuthorizeTest(PyCanTestCase):
     def test_authorize_sucess(self):
-        action, context, _, get_auth_resource, get_resource = self.get_full_permission_params()
+        action, context, _, get_auth_resource, load_after = self.get_full_permission_params()
         auth = lambda user, context, resource: user == 'gandalf' and context['location'] == 'middle earth'
-        pycan.can(action, context, auth, get_auth_resource, get_resource)
+        pycan.can(action, context, auth, get_auth_resource, load_after)
         auth_resource, resource = pycan.authorize(action, context, 'gandalf', self.get_basic_context())
         self.assertTrue(auth_resource)
         self.assertTrue(resource)
 
     def test_authorize_fail(self):
-        action, context, _, get_auth_resource, get_resource = self.get_full_permission_params()
+        action, context, _, get_auth_resource, load_after = self.get_full_permission_params()
         auth = lambda user, context, resource: user == 'gandalf' and context['location'] == 'middle earth'
-        pycan.can(action, context, auth, get_auth_resource, get_resource)
+        pycan.can(action, context, auth, get_auth_resource, load_after)
         self.assertRaises(pycan.exceptions.UnauthorizedResourceError, pycan.authorize, action, context, 'elrond',
                           self.get_basic_context())
 

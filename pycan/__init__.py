@@ -8,16 +8,16 @@ _permissions = {}
 def allow_to_all(user, context, resource):
      return True
 
-def can(action_set, target_set, authorization, get_authorization_resource=lambda _, __: None,
-        get_resource=lambda _, __: None, exception=None):
+def can(action_set, target_set, authorization, load_before=lambda _, __: None,
+        load_after=lambda _, __: None, exception=None):
     assert authorization, "An authorization procedure must be specified"
-    assert getattr(get_authorization_resource, '__call__'), "get_authorization_resource must be callable"
-    assert getattr(get_resource, '__call__'), "get_resource must be callable"
-    assert getattr(authorization, '__call__'), "get_resource must be callable"
+    assert getattr(load_before, '__call__'), "load_before must be callable"
+    assert getattr(load_after, '__call__'), "load_after must be callable"
+    assert getattr(authorization, '__call__'), "load_after must be callable"
 
-    assert len(inspect.getargspec(get_authorization_resource).args) == 2, \
-        "get_authorization_resource must accept 2 parameters"
-    assert len(inspect.getargspec(get_resource).args) == 2, "get_resource must accept 2 parameters"
+    assert len(inspect.getargspec(load_before).args) == 2, \
+        "load_before must accept 2 parameters"
+    assert len(inspect.getargspec(load_after).args) == 2, "load_after must accept 2 parameters"
     _assert_authorization_parameters(authorization)
 
     if not _is_sequence(target_set):
@@ -47,8 +47,8 @@ def can(action_set, target_set, authorization, get_authorization_resource=lambda
             _permissions[target][action] = {
                 'exception': exception,
                 'authorization': authorization,
-                'get_authorization_resource': get_authorization_resource,
-                'get_resource': get_resource,
+                'load_before': load_before,
+                'load_after': load_after,
             }
 
 
@@ -62,7 +62,7 @@ def can_i(action, target, user=None, context=None):
     authorization_data = target_action_set.get(action) or target_action_set.get("*")
 
     if authorization_data is not None:
-        auth_resource = authorization_data.get('get_authorization_resource')(user, context)
+        auth_resource = authorization_data.get('load_before')(user, context)
         
         result = authorization_data.get('authorization')(
             user,
@@ -70,7 +70,7 @@ def can_i(action, target, user=None, context=None):
             auth_resource)
 
         if result:
-            resource = authorization_data.get('get_resource')(user, context)
+            resource = authorization_data.get('load_after')(user, context)
 
     return result, auth_resource, resource, 
 
