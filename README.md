@@ -4,7 +4,7 @@ PyCan is a framework-agnostic open source authorization library that can be easi
 
 PyCan's primary goal is to make sure users are kept on the line and don't do anything they were not supposed to.
 
-PyCan's two main functions are [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78) and [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11). [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) is used for granting permission for a `user` to perform an `action` on a given `target`, whereas the `authorize` method performs the authorization per se.
+PyCan's two main functions are [`authorize`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L78) and [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11). [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11) is used for granting permissions, whereas the `authorize` method performs the authorization per se.
 
 PyCan uses a white-list approach, which means that authorization will be denied for any (action, target) combinations that were not explicitly granted permissions to with a call to [`can`](https://github.com/jusbrasil/pycan/blob/master/pycan/__init__.py#L11).
 
