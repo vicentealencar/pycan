@@ -47,11 +47,15 @@ This is obvious :)
 
 The context is everything that is going on at the moment the authorization took place. In a web application the context usually represents the request parameters.
 
+#### Authorization resource
+
+The authorization resource is any data that was loaded via the lambda passed to the `load_before` parameter (see section below).
+
 ### 1.3. The `load_before` parameter
 
 The `load_before` parameter is responsible for loading data required to perform the authorization.
 
-In the example above, we are trying to make sure a user can edit or delete a profile. In order to determine that, the profile must be loaded prior to running the authorization rule. That's where the `load_before` parameter comes to picture. This parameter accepts a function that will be responsbile for loading the profile (the authorization resource). Its return value is passed as the 3rd parameter of the authorization rule (the `profile` parameter).
+In the example above, we are trying to make sure a user can edit or delete a profile. In order to determine that, the profile must be loaded prior to running the authorization rule. That's where the `load_before` parameter comes to picture. This parameter accepts a function that will be responsible for loading the profile (the authorization resource). Its return value is passed as the 3rd parameter of the authorization rule (the `profile` parameter).
 
 ### 1.4. The `load_after` parameter
 
@@ -88,7 +92,7 @@ can(['delete', 'edit'],
   load_before=lambda user, context: load_profile(context.profile_id)) 
 ```
 
-The `and_` and `or_` functions also do perform short-circuiting. Therefore, it will not make unncessary evaluations of authorization rules. In the example above, if the user is an admin, the second authorization rule would not have been executed.
+The `and_` and `or_` functions also do perform short-circuiting. Therefore, it will not make unnecessary evaluations of authorization rules. In the example above, if the user is an admin, the second authorization rule would not have been executed.
 
 ### 3. Authorizing
 
