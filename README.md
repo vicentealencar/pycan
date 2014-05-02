@@ -43,11 +43,11 @@ Authorization rules are functions that determine whether or not the user is allo
 
 This is obvious :)
 
-#### Context
+##### Context
 
 The context is everything that is going on at the moment the authorization took place. In a web application the context usually represents the request parameters.
 
-#### Authorization resource
+##### Authorization resource
 
 The authorization resource is any data that was loaded via the lambda passed to the `load_before` parameter (see section below).
 
