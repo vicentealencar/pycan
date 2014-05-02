@@ -49,7 +49,7 @@ The context is everything that is going on at the moment the authorization took 
 
 ### 1.3. The `load_before` parameter
 
-The `load_before` parameter is responsible for loading data that is required to perform the authorization and has not yet been loaded.
+The `load_before` parameter is responsible for loading data required to perform the authorization that has not yet been loaded.
 
 In the example above, we are trying to make sure that a user can edit or delete a profile. In order to determine that, the profile must be loaded prior to running the authorization rule. That's where the `load_before` parameter comes to picture. This parameter accepts a function that will be responsbile for loading the profile (the authorization resource). Its return value is passed as the 3rd parameter of the authorization rule (the `profile` parameter).
 
